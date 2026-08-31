@@ -36,3 +36,10 @@ test_data/
 test*
 benckmark/transfacpred/
 webserver
+
+build/
+strucTFactor.egg-info/
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml
