@@ -4,7 +4,7 @@
 import argparse
 
 import torch
-from Bio.PDB import DSSP, PDBParser
+from Bio.PDB import DSSP, MMCIFParser, PDBParser
 from importlib_resources import files
 from torch.utils.data import DataLoader
 
@@ -30,13 +30,25 @@ def argument_parser():
         "-i", "--pdb_file", required=False, default="example.pdb", help="PDB file"
     )
     parser.add_argument(
+        "-f",
+        "--format",
+        choices=["pdb", "mmcif"],
+        default="pdb",
+        help="input format",
+    )
+    parser.add_argument(
         "-o", "--output", required=False, default="output.csv", help="Output file"
     )
     return parser
 
 
-def get_spatial_string(PDB_filename, seq_id):
-    parser = PDBParser()
+def get_spatial_string(PDB_filename, seq_id, file_format="pdb"):
+    if file_format == "pdb":
+        parser = PDBParser()
+    elif file_format == "mmcif":
+        parser = MMCIFParser()
+    else:
+        raise ValueError(f"Invalid file_format: {file_format}")
     try:
         structure = parser.get_structure(seq_id, PDB_filename)
         model = structure[0]
@@ -69,6 +81,7 @@ def main():
     device = torch.device(args.gpu)
     checkpt_file = args.checkpoint
     pdb_file = args.pdb_file
+    file_format = args.format
     output_file = args.output
     # Load the model
     model = DeepTFactor(
@@ -79,7 +92,9 @@ def main():
     cutoff = 0.5
 
     # run DSSP to get spatial information
-    protein_seqs, spatial_seqs = get_spatial_string(pdb_file, "test")
+    protein_seqs, spatial_seqs = get_spatial_string(
+        pdb_file, "test", file_format=file_format
+    )
     pdb_file.split(".")[-2]
     seq_ids = pdb_file.split(".")[-2]
     protein_seqs += "_" * (1000 - len(protein_seqs))  # zero-padding
