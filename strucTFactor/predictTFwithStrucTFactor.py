@@ -2,6 +2,7 @@
 # you can choose your own pre-trained model or take the default model
 # run it via: python predictTFwithStrucTFactor.py -i example.pdb -o output.csv -ckpt strucTFactor_model.pt -g cuda:0
 import argparse
+from pathlib import Path
 
 import torch
 from Bio.PDB import DSSP, MMCIFParser, PDBParser
@@ -95,8 +96,7 @@ def main():
     protein_seqs, spatial_seqs = get_spatial_string(
         pdb_file, "test", file_format=file_format
     )
-    pdb_file.split(".")[-2]
-    seq_ids = pdb_file.split(".")[-2]
+    seq_ids = Path(pdb_file).with_suffix("").name
     protein_seqs += "_" * (1000 - len(protein_seqs))  # zero-padding
     proteinDataset = EnzymeDataset_spatial(
         [protein_seqs], torch.zeros([1, 1]), [spatial_seqs], 1
