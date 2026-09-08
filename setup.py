@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="strucTFactor",
-    version="0.2.0",
+    version="0.3.0",
     packages=["strucTFactor", "strucTFactor.deeptfactor"],
     package_data={
         "strucTFactor": ["strucTFactor_model.pt"],

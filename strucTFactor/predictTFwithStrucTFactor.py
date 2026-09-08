@@ -32,7 +32,9 @@ def argument_parser():
         default=files("strucTFactor").joinpath("strucTFactor_model.pt"),
         help="Checkpoint file",
     )
-    parser.add_argument("-i", "--input", required=True, nargs="+", help="Input files")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-i", "--input", nargs="+", help="Input files")
+    group.add_argument("-r", "--input-dir", help="Input directory")
     parser.add_argument(
         "-f",
         "--format",
@@ -86,8 +88,12 @@ def main():
     args = parser.parse_args()
     device = torch.device(args.device)
     checkpt_file = args.checkpoint
-    input_files = args.input
     file_format = args.format
+    if args.input_dir is None:
+        input_files = args.input
+    else:
+        ext = "*.pdb" if file_format == "pdb" else "*.cif"
+        input_files = Path(args.input_dir).glob(ext)
     output_path = args.output
     threads = args.threads
     # Load the model
